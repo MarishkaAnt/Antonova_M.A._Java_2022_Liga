@@ -14,15 +14,15 @@ public class Task {
     String name;
     String description;
     Integer userId;
+    String status;
     LocalDate deadline;
 
     public String toString() {
-        return    this.getId() + ". "
+        return this.getId() + ". "
                 + this.getName() + ": "
-                + this.getDescription() + " - "
-                + this.getDeadline() + " - "
-                + this.getUserId() + ", deadline=";
+                + this.getDescription() + " - ("
+                + this.getStatus() + ") - "
+                + this.getDeadline();
     }
-
 
 }
