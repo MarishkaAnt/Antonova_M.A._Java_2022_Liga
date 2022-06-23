@@ -9,7 +9,7 @@ public interface UserDAO {
 
     Boolean add(User user) throws IOException;
 
-    List<String> findAll();
+    List<User> findAll();
 
     void deleteAll() throws IOException;
 }
