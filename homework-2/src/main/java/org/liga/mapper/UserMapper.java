@@ -13,7 +13,7 @@ public class UserMapper {
         List<String> parameters = Arrays.stream(
                 userParametersLine.split(",")
         ).toList();
-        if (!(parameters.size() < 3)) {
+        if (parameters.size() < 3) {
             throw new WrongCommandParameters("Wrong size of parameters");
         }
         try {
