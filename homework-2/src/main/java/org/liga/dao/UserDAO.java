@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface UserDAO {
 
-    Boolean add(User user) throws IOException;
+    Boolean create(User user);
 
     List<User> findAll();
 
-    void deleteAll() throws IOException;
+    User findById(Integer id);
+
+    void deleteAll();
 }
