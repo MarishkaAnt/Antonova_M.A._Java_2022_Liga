@@ -1,42 +1,54 @@
 package org.liga.dao.impl;
 
 import org.liga.dao.UserDAO;
-import org.liga.filehandler.Reader;
-import org.liga.filehandler.Writer;
-import org.liga.filehandler.impl.CsvReader;
-import org.liga.filehandler.impl.CsvWriter;
+import org.liga.exception.WrongCommandParameters;
 import org.liga.mapper.UserMapper;
 import org.liga.model.User;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.nio.file.StandardOpenOption.*;
 
 public class CsvUserDAOImpl implements UserDAO {
-
+    private static final String FILE_READING_ERROR = "Извините, что-то не так с файлами для хранения данных";
     private final Path path;
-    private final Writer writer = new CsvWriter();
-    private final Reader reader = new CsvReader();
-    private static List<String> lines = new ArrayList<>();
-    private static List<User> users = new ArrayList<>();
-    public static CsvUserDAOImpl instance = null;
+    private List<String> lines = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
-    private CsvUserDAOImpl(Path path) throws IOException {
+    public CsvUserDAOImpl(Path path) {
         this.path = path;
-        initialiseUsers();
+        try {
+            initialiseUsers();
+        } catch (IOException e) {
+            System.out.println(FILE_READING_ERROR);
+            e.printStackTrace();
+        }
     }
 
-    public static CsvUserDAOImpl getInstance(Path userCsvPath) throws IOException {
-        return new CsvUserDAOImpl(userCsvPath);
+    private void initialiseUsers() throws IOException {
+        if (!Files.isReadable(path)) {
+            throw new IOException("Couldn't read the file: " + path);
+        }
+        lines.addAll(Files.readAllLines(path));
+        users.addAll(lines.stream()
+                .map(UserMapper::stringToUser)
+                .collect(Collectors.toList()));
     }
 
     @Override
-    public Boolean add(User user) {
+    public Boolean create(User user) {
+        if (!validateUser(user)) {
+            return false;
+        }
         String line = UserMapper.userToString(user);
         lines.add(line);
         try {
-            writer.write(lines, path);
+            Files.write(path, lines, CREATE, APPEND);
         } catch (IOException e) {
             return false;
         }
@@ -44,21 +56,31 @@ public class CsvUserDAOImpl implements UserDAO {
     }
 
     @Override
-    public List<String> findAll() {
-        return lines;
+    public List<User> findAll() {
+        return users;
     }
 
     @Override
-    public void deleteAll() throws IOException {
+    public User findById(Integer id) {
+        return users.stream()
+                .filter(u -> u.getId().equals(id))
+                .findAny().orElseThrow(() ->
+                        new WrongCommandParameters("Пользователя с таким id не существует"));
+    }
+
+    @Override
+    public void deleteAll(){
         try {
-            writer.write(new ArrayList<>(), path);
+            Files.write(path, lines, TRUNCATE_EXISTING);
         } catch (IOException e) {
-            throw new IOException("It is impossible to delete users because of: ", e);
+            throw new RuntimeException("It's impossible to delete users from file: " + path + " because of: ", e);
         }
     }
 
-    private void initialiseUsers() throws IOException {
-        lines = reader.readFile(path);
+    private Boolean validateUser(User user) {
+        return user.getId() != null &&
+                user.getFirstName() != null &&
+                user.getLastName() != null;
     }
 
 }
