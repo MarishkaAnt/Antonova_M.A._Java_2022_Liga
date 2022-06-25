@@ -12,9 +12,10 @@ public class UserMapper {
         User user;
         List<String> parameters = Arrays.stream(
                 userParametersLine.split(",")
-        ).toList();
+        ).map(String::trim)
+                .toList();
         if (parameters.size() < 3) {
-            throw new WrongCommandParameters("Wrong size of parameters");
+            throw new WrongCommandParameters();
         }
         try {
             user = User.builder()
@@ -23,7 +24,7 @@ public class UserMapper {
                     .lastName(parameters.get(2))
                     .build();
         } catch (NumberFormatException e) {
-            throw new WrongCommandParameters("Wrong type of id, use numbers only");
+            throw new WrongCommandParameters("Неверный тип id, используйте только цифры");
         }
 
         return user;
