@@ -37,7 +37,8 @@ public enum Commands {
                 taskDAO.findAllByStatus(status).stream()
                         .peek(t -> {
                             Integer userId = t.getUserId();
-                            System.out.print(userDAO.findById(userId) + " ");
+                            User user = userDAO.findById(userId).orElse(User.builder().build());
+                            System.out.print(user + " - ");
                         })
                         .forEach(System.out::println);
             } else {
@@ -51,7 +52,7 @@ public enum Commands {
         public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
             int size = parameters.size();
             Boolean created = false;
-            if (size == 4) {
+            if (size == 3) {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
@@ -171,7 +172,7 @@ public enum Commands {
         @Override
         public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
             if (parameters.size() == 2) {
-                int id = Integer.parseInt(parameters.get(1));
+                int id = Integer.parseInt(parameters.get(1).trim());
                 userDAO.deleteById(id);
             } else {
                 throw new WrongCommandParametersException();
@@ -183,7 +184,7 @@ public enum Commands {
         @Override
         public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
             if (parameters.size() == 2) {
-                int id = Integer.parseInt(parameters.get(1));
+                int id = Integer.parseInt(parameters.get(1).trim());
                 taskDAO.deleteById(id);
             } else {
                 throw new WrongCommandParametersException();

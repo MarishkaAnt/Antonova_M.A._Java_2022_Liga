@@ -42,11 +42,13 @@ public class TaskMapper {
     }
 
     public static String taskToString(Task task) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
         return task.getId() + ", "
                 + task.getName() + ", "
                 + task.getDescription() + ", "
                 + task.getUserId() + ", "
-                + task.getDeadline() + ", "
+                + task.getDeadline().format(formatter) + ", "
                 + task.getStatus();
     }
 
