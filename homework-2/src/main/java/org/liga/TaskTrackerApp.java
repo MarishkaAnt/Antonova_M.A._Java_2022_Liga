@@ -86,6 +86,7 @@ public class TaskTrackerApp {
             }
         }
         while (!isAppClosingNeed && sc.hasNext());
+        sc.close();
 
         System.out.println(GOODBYE_MESSAGE);
     }
