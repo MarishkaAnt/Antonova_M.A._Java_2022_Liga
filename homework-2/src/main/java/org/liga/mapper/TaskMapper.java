@@ -31,6 +31,8 @@ public class TaskMapper {
                     .build();
             if (parameters.size() == 6) {
                 task.setStatus(Status.valueOf(parameters.get(5)));
+            } else {
+                task.setStatus(Status.NEW);
             }
         } catch (NumberFormatException e) {
             throw new WrongCommandParametersException("Неверный тип id, используйте только цифры");
