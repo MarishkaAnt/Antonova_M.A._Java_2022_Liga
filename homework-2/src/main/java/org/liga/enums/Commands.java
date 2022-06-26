@@ -2,7 +2,7 @@ package org.liga.enums;
 
 import org.liga.dao.TaskDAO;
 import org.liga.dao.UserDAO;
-import org.liga.exception.WrongCommandParameters;
+import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.TaskMapper;
 import org.liga.mapper.UserMapper;
 import org.liga.model.Task;
@@ -21,7 +21,7 @@ public enum Commands {
                 userDAO.findAll()
                         .forEach(System.out::println);
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -41,7 +41,7 @@ public enum Commands {
                         })
                         .forEach(System.out::println);
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -55,11 +55,11 @@ public enum Commands {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
-                created = userDAO.create(UserMapper.stringToUser(parametersLine));
+                created = userDAO.create(parametersLine);
                 System.out.println("Пользователь добавлен, проверить можно введя команду ALL_USERS");
             }
             if (!created) {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -73,11 +73,11 @@ public enum Commands {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
-                created = taskDAO.create(TaskMapper.stringToTask(parametersLine));
+                created = taskDAO.create(parametersLine);
                 System.out.println("Задача добавлена, проверить можно введя команду ALL_TASKS");
             }
             if (!created) {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -86,7 +86,7 @@ public enum Commands {
         @Override
         public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
             if (parameters.size() != 2) {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
             int id = Integer.parseInt(parameters.get(1));
             Optional<User> founded = userDAO.findById(id);
@@ -101,7 +101,7 @@ public enum Commands {
         @Override
         public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
             if (parameters.size() != 2) {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
             int id = Integer.parseInt(parameters.get(1));
             Optional<Task> founded = taskDAO.findById(id);
@@ -122,7 +122,7 @@ public enum Commands {
                 userDAO.update(UserMapper.stringToUser(parametersLine));
                 System.out.println("Пользователь обновлен, проверить можно введя команду ALL_USERS");
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -138,7 +138,7 @@ public enum Commands {
                 taskDAO.update(TaskMapper.stringToTask(parametersLine));
                 System.out.println("Задача обновлена, проверить можно введя команду ALL_TASKS");
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
 
         }
@@ -150,7 +150,7 @@ public enum Commands {
             if (parameters.size() == 1) {
                 userDAO.deleteAll();
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -161,7 +161,7 @@ public enum Commands {
             if (parameters.size() == 1) {
                 taskDAO.deleteAll();
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
 
         }
@@ -174,7 +174,7 @@ public enum Commands {
                 int id = Integer.parseInt(parameters.get(1));
                 userDAO.deleteById(id);
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -186,7 +186,7 @@ public enum Commands {
                 int id = Integer.parseInt(parameters.get(1));
                 taskDAO.deleteById(id);
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     },
@@ -200,7 +200,7 @@ public enum Commands {
                 String status = parameters.get(2).trim();
                 taskDAO.changeStatus(id, status);
             } else {
-                throw new WrongCommandParameters();
+                throw new WrongCommandParametersException();
             }
         }
     };

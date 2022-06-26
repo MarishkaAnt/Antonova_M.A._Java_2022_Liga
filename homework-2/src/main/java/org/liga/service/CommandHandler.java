@@ -5,7 +5,7 @@ import org.liga.dao.UserDAO;
 import org.liga.dao.impl.CsvTaskDOAImpl;
 import org.liga.dao.impl.CsvUserDAOImpl;
 import org.liga.enums.Commands;
-import org.liga.exception.WrongCommandParameters;
+import org.liga.exception.WrongCommandParametersException;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class CommandHandler {
         String command = commandParameters.get(0).trim();
         try {
             Commands.valueOf(command).action(userDAO, taskDAO, commandParameters);
-        } catch (WrongCommandParameters e) {
+        } catch (WrongCommandParametersException e) {
             System.out.println(e + "пожалуйста, попробуйте еще раз");
         } catch (IllegalArgumentException e) {
             System.out.println(e + "Команда не распознается, попробуйте еще раз");

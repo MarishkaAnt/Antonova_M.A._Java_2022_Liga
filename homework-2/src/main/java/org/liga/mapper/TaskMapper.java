@@ -1,7 +1,7 @@
 package org.liga.mapper;
 
 import org.liga.enums.Status;
-import org.liga.exception.WrongCommandParameters;
+import org.liga.exception.WrongCommandParametersException;
 import org.liga.model.Task;
 
 import java.time.LocalDate;
@@ -18,7 +18,7 @@ public class TaskMapper {
         ).map(String::trim)
                 .toList();
         if (parameters.size() < 5) {
-            throw new WrongCommandParameters();
+            throw new WrongCommandParametersException();
         }
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -33,7 +33,7 @@ public class TaskMapper {
                 task.setStatus(Status.valueOf(parameters.get(5)));
             }
         } catch (NumberFormatException e) {
-            throw new WrongCommandParameters("Неверный тип id, используйте только цифры");
+            throw new WrongCommandParametersException("Неверный тип id, используйте только цифры");
         }
 
         return task;

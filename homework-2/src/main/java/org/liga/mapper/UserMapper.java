@@ -1,6 +1,6 @@
 package org.liga.mapper;
 
-import org.liga.exception.WrongCommandParameters;
+import org.liga.exception.WrongCommandParametersException;
 import org.liga.model.User;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ public class UserMapper {
         ).map(String::trim)
                 .toList();
         if (parameters.size() < 3) {
-            throw new WrongCommandParameters();
+            throw new WrongCommandParametersException();
         }
         try {
             user = User.builder()
@@ -24,7 +24,7 @@ public class UserMapper {
                     .lastName(parameters.get(2))
                     .build();
         } catch (NumberFormatException e) {
-            throw new WrongCommandParameters("Неверный тип id, используйте только цифры");
+            throw new WrongCommandParametersException("Неверный тип id, используйте только цифры");
         }
 
         return user;
