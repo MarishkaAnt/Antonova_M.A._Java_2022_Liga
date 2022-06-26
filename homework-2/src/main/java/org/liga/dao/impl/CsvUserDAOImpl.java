@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -18,6 +20,7 @@ public class CsvUserDAOImpl implements UserDAO {
     private static final String FILE_READING_ERROR = "Извините, что-то не так с файлами для хранения данных :";
     public static final String USER_NOT_FOUND = "Пользователя с таким id не существует";
     private final Path path;
+    private static final String IMPOSSIBLE_TO_DELETE = "Невозможно удалить пользователя из файла: ";
     private List<String> lines = new ArrayList<>();
     private List<User> users = new ArrayList<>();
 
@@ -47,8 +50,13 @@ public class CsvUserDAOImpl implements UserDAO {
 
     @Override
     public Boolean create(User user) {
-        if (!validateUser(user)) {
+        if (!validate(user)) {
+            System.out.println("Все параметры должны быть заполнены");
             return false;
+        }
+        if (findById(user.getId()).isPresent()) {
+            update(user);
+            return true;
         }
         String line = UserMapper.userToString(user);
         lines.add(line);
@@ -63,15 +71,16 @@ public class CsvUserDAOImpl implements UserDAO {
 
     @Override
     public List<User> findAll() {
-        return users;
+        return users.stream()
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User findById(Integer id) {
+    public Optional<User> findById(Integer id) {
         return users.stream()
                 .filter(u -> u.getId().equals(id))
-                .findAny().orElseThrow(() ->
-                        new WrongCommandParameters(USER_NOT_FOUND));
+                .findAny();
     }
 
     @Override
@@ -81,7 +90,7 @@ public class CsvUserDAOImpl implements UserDAO {
         try {
             Files.write(path, new ArrayList<>(), TRUNCATE_EXISTING);
         } catch (IOException e) {
-            throw new RuntimeException("It's impossible to delete users from file: " + path + " because of: ", e);
+            throw new RuntimeException(IMPOSSIBLE_TO_DELETE + path, e);
         }
     }
 
@@ -96,7 +105,7 @@ public class CsvUserDAOImpl implements UserDAO {
         try {
             Files.write(path, lines, TRUNCATE_EXISTING);
         } catch (IOException e) {
-            throw new RuntimeException("It's impossible to delete users from file: " + path + " because of: ", e);
+            throw new RuntimeException(IMPOSSIBLE_TO_DELETE + path, e);
         }
     }
 
@@ -118,12 +127,12 @@ public class CsvUserDAOImpl implements UserDAO {
         try {
             Files.write(path, lines, TRUNCATE_EXISTING);
         } catch (IOException e) {
-            throw new RuntimeException("It's impossible to delete users from file: " + path + " because of: ", e);
+            throw new RuntimeException(IMPOSSIBLE_TO_DELETE + path, e);
         }
 
     }
 
-    private Boolean validateUser(User user) {
+    private Boolean validate(User user) {
         return user.getId() != null &&
                 user.getFirstName() != null &&
                 user.getLastName() != null;
