@@ -14,4 +14,8 @@ public interface UserDAO {
     User findById(Integer id);
 
     void deleteAll();
+
+    void deleteById(Integer id);
+
+    void update(User user);
 }
