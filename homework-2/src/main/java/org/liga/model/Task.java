@@ -1,6 +1,7 @@
 package org.liga.model;
 
 import lombok.*;
+import org.liga.enums.Status;
 
 import java.time.LocalDate;
 
@@ -14,7 +15,7 @@ public class Task {
     String name;
     String description;
     Integer userId;
-    String status;
+    Status status;
     LocalDate deadline;
 
     public String toString() {
