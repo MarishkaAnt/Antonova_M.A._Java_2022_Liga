@@ -9,7 +9,7 @@ public interface TaskDAO {
 
     List<Task> findAllByStatus(String status);
 
-    void changeStatus(String status);
+    void changeStatus(Integer id, String status);
 
     List<Task> findAll();
 
