@@ -4,6 +4,7 @@ import org.liga.model.User;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserDAO {
 
@@ -11,7 +12,7 @@ public interface UserDAO {
 
     List<User> findAll();
 
-    User findById(Integer id);
+    Optional<User> findById(Integer id);
 
     void deleteAll();
 
