@@ -88,7 +88,7 @@ public enum Commands {
             if (parameters.size() != 2) {
                 throw new WrongCommandParametersException();
             }
-            int id = Integer.parseInt(parameters.get(1));
+            int id = Integer.parseInt(parameters.get(1).trim());
             Optional<User> founded = userDAO.findById(id);
             founded.ifPresent(user ->
                     System.out.println("UPDATE_USER, " +
@@ -103,7 +103,7 @@ public enum Commands {
             if (parameters.size() != 2) {
                 throw new WrongCommandParametersException();
             }
-            int id = Integer.parseInt(parameters.get(1));
+            int id = Integer.parseInt(parameters.get(1).trim());
             Optional<Task> founded = taskDAO.findById(id);
             founded.ifPresent(task ->
                     System.out.println("UPDATE_TASK, " +
