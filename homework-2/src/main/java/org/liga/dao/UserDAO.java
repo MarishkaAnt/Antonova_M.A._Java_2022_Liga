@@ -2,13 +2,12 @@ package org.liga.dao;
 
 import org.liga.model.User;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public interface UserDAO {
 
-    Boolean create(User user);
+    Boolean create(String parametersLine);
 
     List<User> findAll();
 

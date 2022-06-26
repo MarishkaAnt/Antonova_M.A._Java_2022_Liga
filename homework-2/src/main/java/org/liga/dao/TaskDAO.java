@@ -15,7 +15,7 @@ public interface TaskDAO {
 
     Optional<Task> findById(Integer id);
 
-    Boolean create(Task task);
+    Boolean create(String parametersLine);
 
     void deleteAll();
 

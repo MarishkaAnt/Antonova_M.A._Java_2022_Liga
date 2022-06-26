@@ -2,7 +2,7 @@ package org.liga.dao.impl;
 
 import org.liga.dao.TaskDAO;
 import org.liga.enums.Status;
-import org.liga.exception.WrongCommandParameters;
+import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.TaskMapper;
 import org.liga.model.Task;
 
@@ -50,7 +50,15 @@ public class CsvTaskDOAImpl implements TaskDAO {
     }
 
     @Override
-    public Boolean create(Task task) {
+    public Boolean create(String parametersLine) {
+        List<Task> sortedTasks = tasks.stream()
+                .sorted(Comparator.comparing(Task::getId))
+                .collect(Collectors.toList());
+        int nextId = 1;
+        if(tasks.size() > 0) {
+            nextId = (sortedTasks.get(tasks.size() - 1).getId()) + 1;
+        }
+        Task task = TaskMapper.stringToTask(nextId + ", " + parametersLine);
         if (!validate(task)) {
             System.out.println("Все параметры, кроме статуса, должны быть заполнены");
             return false;
@@ -108,7 +116,7 @@ public class CsvTaskDOAImpl implements TaskDAO {
         Task founded = tasks.stream()
                 .filter(t -> t.getId().equals(id))
                 .findAny().orElseThrow(() ->
-                        new WrongCommandParameters(TASK_NOT_FOUND));
+                        new WrongCommandParametersException(TASK_NOT_FOUND));
         tasks.removeAll(List.of(founded));
         lines.removeAll(List.of(TaskMapper.taskToString(founded)));
         try {
@@ -145,7 +153,7 @@ public class CsvTaskDOAImpl implements TaskDAO {
 
     @Override
     public void changeStatus(Integer id, String status) {
-        Task founded = findById(id).orElseThrow(WrongCommandParameters::new);
+        Task founded = findById(id).orElseThrow(WrongCommandParametersException::new);
         founded.setStatus(Status.valueOf(status));
         update(founded);
     }

@@ -1,7 +1,7 @@
 package org.liga.dao.impl;
 
 import org.liga.dao.UserDAO;
-import org.liga.exception.WrongCommandParameters;
+import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.UserMapper;
 import org.liga.model.User;
 
@@ -49,7 +49,15 @@ public class CsvUserDAOImpl implements UserDAO {
     }
 
     @Override
-    public Boolean create(User user) {
+    public Boolean create(String parametersLine) {
+        List<User> sortedUsers = users.stream()
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toList());
+        int nextId = 1;
+        if(users.size() > 0) {
+            nextId = (sortedUsers.get(users.size() - 1).getId()) + 1;
+        }
+        User user = UserMapper.stringToUser(nextId + ", " + parametersLine);
         if (!validate(user)) {
             System.out.println("Все параметры должны быть заполнены");
             return false;
@@ -99,7 +107,7 @@ public class CsvUserDAOImpl implements UserDAO {
         User founded = users.stream()
                 .filter(u -> u.getId().equals(id))
                 .findAny().orElseThrow(() ->
-                        new WrongCommandParameters(USER_NOT_FOUND));
+                        new WrongCommandParametersException(USER_NOT_FOUND));
         users.removeAll(List.of(founded));
         lines.removeAll(List.of(UserMapper.userToString(founded)));
         try {

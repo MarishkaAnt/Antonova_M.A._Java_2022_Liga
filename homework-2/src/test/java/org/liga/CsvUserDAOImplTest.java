@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.liga.dao.UserDAO;
 import org.liga.dao.impl.CsvUserDAOImpl;
+import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.UserMapper;
 import org.liga.model.User;
 
@@ -20,19 +21,11 @@ public class CsvUserDAOImplTest {
     private static final String CORRECT_PATH = "src/test/resources/CorrectTestSample.csv";
     private static final String INCORRECT_PATH = "src/test/resources/notExists.csv";
     private static final String EMPTY_FILE_PATH = "src/test/resources/EmptyTestSample.csv";
-    private static final User EMPTY_USER = User.builder().build();
+    private static final String EMPTY_USER = "";
     private static final List<String> initialLines = List.of("1, ПервыйТекст, ВторойТекст",
             "2, Текст с пробелом, ТЕКСТ С ЗАГЛАВНЫМИ БУКВАМИ");
-    private static final User CORRECT_USER = User.builder()
-            .id(4)
-            .firstName("name")
-            .lastName("name")
-            .build();
-    private static final User NEW_CORRECT_USER = User.builder()
-            .id(4)
-            .firstName("new name")
-            .lastName("new name")
-            .build();
+    private static final String CORRECT_USER = "name, name";
+    private static final String NEW_CORRECT_USER = "1, new name, new name";
 
     @AfterEach
     public void clean() throws IOException {
@@ -60,9 +53,8 @@ public class CsvUserDAOImplTest {
         //given
         Path path = Path.of(CORRECT_PATH);
         UserDAO userDAO = new CsvUserDAOImpl(path);
-        Files.write(path, List.of(UserMapper.userToString(CORRECT_USER)), APPEND);
-        List<String> expected = Files.readAllLines(path);
-        Files.write(path, initialLines);
+        userDAO.deleteAll();
+        List<String> expected = List.of("1, " + CORRECT_USER);
         //when
         userDAO.create(CORRECT_USER);
         List<String> actual = Files.readAllLines(path);
@@ -86,11 +78,11 @@ public class CsvUserDAOImplTest {
     }
 
     @Test
-    void addEmptyUser_returnFalse() {
+    void addEmptyUser_throwWrongCommandParametersException() {
         //given
         UserDAO userDAO = new CsvUserDAOImpl(Path.of(CORRECT_PATH));
         //then
-        assertFalse(userDAO.create(EMPTY_USER));
+        assertThrows(WrongCommandParametersException.class, () -> userDAO.create(EMPTY_USER));
     }
 
     @Test
@@ -130,11 +122,12 @@ public class CsvUserDAOImplTest {
         UserDAO userDAO = new CsvUserDAOImpl(path);
         userDAO.deleteAll();
         userDAO.create(CORRECT_USER);
+        User createdUser = userDAO.findAll().get(0);
         //when
-        userDAO.update(NEW_CORRECT_USER);
+        userDAO.update(UserMapper.stringToUser(NEW_CORRECT_USER));
         List<User> actual = userDAO.findAll();
         //then
-        assertEquals(List.of(NEW_CORRECT_USER), actual);
+        assertEquals(List.of(createdUser), actual);
     }
 
 }
