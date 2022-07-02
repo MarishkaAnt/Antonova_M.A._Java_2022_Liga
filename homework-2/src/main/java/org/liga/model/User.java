@@ -2,12 +2,19 @@ package org.liga.model;
 
 import lombok.*;
 
-@Data
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Integer id;
     String firstName;
     String lastName;
