@@ -17,25 +17,24 @@ public class TaskMapper {
                 taskParametersLine.split(",")
         ).map(String::trim)
                 .toList();
-        if (parameters.size() < 5) {
+        if (parameters.size() < 4) {
             throw new WrongCommandParametersException();
         }
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
             task = Task.builder()
-                    .id(Integer.parseInt(parameters.get(0)))
-                    .name(parameters.get(1))
-                    .description(parameters.get(2))
-                    .userId(Integer.parseInt(parameters.get(3)))
-                    .deadline(LocalDate.parse(parameters.get(4), formatter))
+                    .name(parameters.get(0))
+                    .description(parameters.get(1))
+                    .userId(Integer.parseInt(parameters.get(2)))
+                    .deadline(LocalDate.parse(parameters.get(3), formatter))
                     .build();
-            if (parameters.size() == 6) {
-                task.setStatus(Status.valueOf(parameters.get(5)));
+            if (parameters.size() == 5) {
+                task.setStatus(Status.valueOf(parameters.get(4)));
             } else {
                 task.setStatus(Status.NEW);
             }
-        } catch (NumberFormatException e) {
-            throw new WrongCommandParametersException("Неверный тип id, используйте только цифры");
+        } catch (IndexOutOfBoundsException e) {
+            throw new WrongCommandParametersException("Неверное количество параметров");
         }
 
         return task;
