@@ -12,7 +12,6 @@ import org.liga.util.Constants;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public enum Commands {
