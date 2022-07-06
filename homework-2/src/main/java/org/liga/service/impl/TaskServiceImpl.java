@@ -1,7 +1,7 @@
 package org.liga.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.liga.dao.TaskRepository;
+import org.liga.repository.TaskRepository;
 import org.liga.enums.Status;
 import org.liga.mapper.TaskMapper;
 import org.liga.model.Task;

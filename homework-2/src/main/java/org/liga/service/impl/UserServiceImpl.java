@@ -1,7 +1,7 @@
 package org.liga.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.liga.dao.UserRepository;
+import org.liga.repository.UserRepository;
 import org.liga.mapper.UserMapper;
 import org.liga.model.User;
 import org.liga.service.UserService;
