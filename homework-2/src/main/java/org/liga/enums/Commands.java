@@ -19,8 +19,9 @@ public enum Commands {
     ALL_USERS {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParams = 1;
             StringBuilder response = new StringBuilder();
-            if (parameters.size() == 1) {
+            if (parameters.size() == requiredAmountOfParams) {
                 List<User> users = userService.findAll();
                 for (User user : users) {
                     response.append(user.toString()).append(System.lineSeparator());
@@ -35,18 +36,20 @@ public enum Commands {
     ALL_TASKS {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParamsToFindAll = 1;
+            int requiredAmountOfParamsToFindAllByStatus = 2;
             StringBuilder response = new StringBuilder();
             int size = parameters.size();
             List<Task> tasks;
-            if (size == 1) {
+            if (size == requiredAmountOfParamsToFindAll) {
                 tasks = taskService.findAll();
-            } else if (size == 2) {
+            } else if (size == requiredAmountOfParamsToFindAllByStatus) {
                 String status = parameters.get(1).trim();
                 tasks = taskService.findAllByStatus(Status.valueOf(status));
             } else {
                 throw new WrongCommandParametersException();
             }
-            for (Task task: tasks) {
+            for (Task task : tasks) {
                 Integer userId = task.getUserId();
                 User user = userService.findById(userId).orElse(User.builder().build());
                 response.append(user).append(" - ").append(task).append(System.lineSeparator());
@@ -58,14 +61,17 @@ public enum Commands {
     NEW_USER {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParams = 3;
             int size = parameters.size();
             String response = "";
-            if (size == 3) {
+            if (size == requiredAmountOfParams) {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
                 Optional<User> user = userService.create(parametersLine);
                 response = "Пользователь добавлен: " + user.orElseThrow(WrongCommandParametersException::new);
+            } else {
+                throw new WrongCommandParametersException();
             }
             return response;
         }
@@ -74,14 +80,18 @@ public enum Commands {
     NEW_TASK {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParamsWithoutStatus = 5;
+            int requiredAmountOfParamsWithStatus = 6;
             int size = parameters.size();
             String response = "";
-            if ((size > 4) && (size < 7)) {
+            if (size == requiredAmountOfParamsWithoutStatus || size == requiredAmountOfParamsWithStatus) {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
                 Optional<Task> task = taskService.create(parametersLine);
                 response = "Задача добавлена: " + task.orElseThrow(WrongCommandParametersException::new);
+            } else {
+                throw new WrongCommandParametersException();
             }
             return response;
         }
@@ -90,7 +100,8 @@ public enum Commands {
     GET_USER {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            if (parameters.size() != 2) {
+            int requiredAmountOfParams = 2;
+            if (parameters.size() != requiredAmountOfParams) {
                 throw new WrongCommandParametersException();
             }
             int id = Integer.parseInt(parameters.get(1).trim());
@@ -102,7 +113,8 @@ public enum Commands {
     GET_TASK {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            if (parameters.size() != 2) {
+            int requiredAmountOfParams = 2;
+            if (parameters.size() != requiredAmountOfParams) {
                 throw new WrongCommandParametersException();
             }
             int id = Integer.parseInt(parameters.get(1).trim());
@@ -114,9 +126,10 @@ public enum Commands {
     UPDATE_USER {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParams = 4;
             int size = parameters.size();
             String response = "";
-            if (size == 4) {
+            if (size == requiredAmountOfParams) {
                 int id = Integer.parseInt(parameters.get(1).trim());
                 String parametersLine = parameters.stream()
                         .skip(2)
@@ -131,9 +144,10 @@ public enum Commands {
     UPDATE_TASK {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParams = 6;
             int size = parameters.size();
             String response = "";
-            if ((size > 4) && (size < 7)) {
+            if (size == requiredAmountOfParams) {
                 int id = Integer.parseInt(parameters.get(1).trim());
                 String parametersLine = parameters.stream()
                         .skip(2)
@@ -148,7 +162,8 @@ public enum Commands {
     DELETE_ALL_USERS {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            if (parameters.size() == 1) {
+            int requiredAmountOfParams = 1;
+            if (parameters.size() == requiredAmountOfParams) {
                 userService.deleteAll();
             } else {
                 throw new WrongCommandParametersException();
@@ -160,7 +175,8 @@ public enum Commands {
     DELETE_ALL_TASKS {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            if (parameters.size() == 1) {
+            int requiredAmountOfParams = 1;
+            if (parameters.size() == requiredAmountOfParams) {
                 taskService.deleteAll();
             } else {
                 throw new WrongCommandParametersException();
@@ -172,8 +188,9 @@ public enum Commands {
     DELETE_USER {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParams = 2;
             String response;
-            if (parameters.size() == 2) {
+            if (parameters.size() == requiredAmountOfParams) {
                 int id = Integer.parseInt(parameters.get(1).trim());
                 userService.deleteById(id);
                 response = "Пользователь с id = " + id + " удален";
@@ -186,9 +203,11 @@ public enum Commands {
 
     DELETE_TASK {
         String response = "";
+
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            if (parameters.size() == 2) {
+            int requiredAmountOfParams = 2;
+            if (parameters.size() == requiredAmountOfParams) {
                 int id = Integer.parseInt(parameters.get(1).trim());
                 taskService.deleteById(id);
                 response = "Задача с id = " + id + " удалена";
@@ -202,9 +221,10 @@ public enum Commands {
     CHANGE_STATUS {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            int requiredAmountOfParams = 3;
             int size = parameters.size();
             String response;
-            if (size == 3) {
+            if (size == requiredAmountOfParams) {
                 int id = Integer.parseInt(parameters.get(1).trim());
                 String status = parameters.get(2).trim();
                 taskService.changeStatus(id, status);
@@ -221,7 +241,7 @@ public enum Commands {
             return StringConstants.HELP_TEXT;
         }
     },
-    EXIT{
+    EXIT {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
             return StringConstants.GOODBYE_MESSAGE;
