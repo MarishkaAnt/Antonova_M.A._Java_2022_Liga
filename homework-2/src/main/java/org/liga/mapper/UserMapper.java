@@ -14,17 +14,16 @@ public class UserMapper {
                 userParametersLine.split(",")
         ).map(String::trim)
                 .toList();
-        if (parameters.size() < 3) {
+        if (parameters.size() < 2) {
             throw new WrongCommandParametersException();
         }
         try {
             user = User.builder()
-                    .id(Integer.parseInt(parameters.get(0)))
-                    .firstName(parameters.get(1))
-                    .lastName(parameters.get(2))
+                    .firstName(parameters.get(0))
+                    .lastName(parameters.get(1))
                     .build();
         } catch (NumberFormatException e) {
-            throw new WrongCommandParametersException("Неверный тип id, используйте только цифры");
+            throw new WrongCommandParametersException("Неверное количество параметров");
         }
 
         return user;

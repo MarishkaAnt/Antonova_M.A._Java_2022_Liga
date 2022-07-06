@@ -1,13 +1,13 @@
-package org.liga.dao;
+package org.liga.service;
 
 import org.liga.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserDAO {
+public interface UserService {
 
-    Boolean create(String parametersLine);
+    Optional<User> create(String parametersLine);
 
     List<User> findAll();
 
@@ -17,5 +17,6 @@ public interface UserDAO {
 
     void deleteById(Integer id);
 
-    void update(User user);
+    Optional<User> update(Integer id, String parametersLine);
+
 }

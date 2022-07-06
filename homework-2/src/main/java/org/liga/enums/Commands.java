@@ -1,210 +1,233 @@
 package org.liga.enums;
 
-import org.liga.dao.TaskDAO;
-import org.liga.dao.UserDAO;
 import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.TaskMapper;
 import org.liga.mapper.UserMapper;
 import org.liga.model.Task;
 import org.liga.model.User;
+import org.liga.service.TaskService;
+import org.liga.service.UserService;
+import org.liga.util.Constants;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public enum Commands {
 
     ALL_USERS {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            StringBuilder response = new StringBuilder();
             if (parameters.size() == 1) {
-                userDAO.findAll()
-                        .forEach(System.out::println);
+                List<User> users = userService.findAll();
+                for (User user : users) {
+                    response.append(user.toString()).append(System.lineSeparator());
+                }
             } else {
                 throw new WrongCommandParametersException();
             }
+            return response.toString();
         }
     },
 
     ALL_TASKS {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            StringBuilder response = new StringBuilder();
             int size = parameters.size();
+            List<Task> tasks;
             if (size == 1) {
-                taskDAO.findAll().forEach(System.out::println);
+                tasks = taskService.findAll();
             } else if (size == 2) {
-                String status = parameters.get(1);
-                taskDAO.findAllByStatus(status).stream()
-                        .peek(t -> {
-                            Integer userId = t.getUserId();
-                            User user = userDAO.findById(userId).orElse(User.builder().build());
-                            System.out.print(user + " - ");
-                        })
-                        .forEach(System.out::println);
+                String status = parameters.get(1).trim();
+                tasks = taskService.findAllByStatus(Status.valueOf(status));
             } else {
                 throw new WrongCommandParametersException();
             }
+            for (Task task: tasks) {
+                Integer userId = task.getUserId();
+                User user = userService.findById(userId).orElse(User.builder().build());
+                response.append(user).append(" - ").append(task).append(System.lineSeparator());
+            }
+            return response.toString();
         }
     },
 
     NEW_USER {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             int size = parameters.size();
-            Boolean created = false;
+            String response = "";
             if (size == 3) {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
-                created = userDAO.create(parametersLine);
-                System.out.println("Пользователь добавлен, проверить можно введя команду ALL_USERS");
+                Optional<User> user = userService.create(parametersLine);
+                response = "Пользователь добавлен: " + user.orElseThrow(WrongCommandParametersException::new);
             }
-            if (!created) {
-                throw new WrongCommandParametersException();
-            }
+            return response;
         }
     },
 
     NEW_TASK {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             int size = parameters.size();
-            Boolean created = false;
+            String response = "";
             if ((size > 4) && (size < 7)) {
                 String parametersLine = parameters.stream()
                         .skip(1)
                         .collect(Collectors.joining(","));
-                created = taskDAO.create(parametersLine);
-                System.out.println("Задача добавлена, проверить можно введя команду ALL_TASKS");
+                Optional<Task> task = taskService.create(parametersLine);
+                response = "Задача добавлена: " + task.orElseThrow(WrongCommandParametersException::new);
             }
-            if (!created) {
-                throw new WrongCommandParametersException();
-            }
+            return response;
         }
     },
 
     GET_USER {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             if (parameters.size() != 2) {
                 throw new WrongCommandParametersException();
             }
             int id = Integer.parseInt(parameters.get(1).trim());
-            Optional<User> founded = userDAO.findById(id);
-            founded.ifPresent(user ->
-                    System.out.println("UPDATE_USER, " +
-                            UserMapper.userToString(user)));
-
+            User founded = userService.findById(id).orElseThrow(EntityNotFoundException::new);
+            return "UPDATE_USER, " + UserMapper.userToString(founded);
         }
     },
 
     GET_TASK {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             if (parameters.size() != 2) {
                 throw new WrongCommandParametersException();
             }
             int id = Integer.parseInt(parameters.get(1).trim());
-            Optional<Task> founded = taskDAO.findById(id);
-            founded.ifPresent(task ->
-                    System.out.println("UPDATE_TASK, " +
-                            TaskMapper.taskToString(task)));
+            Task founded = taskService.findById(id).orElseThrow(EntityNotFoundException::new);
+            return "UPDATE_TASK, " + TaskMapper.taskToString(founded);
         }
     },
 
     UPDATE_USER {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             int size = parameters.size();
+            String response = "";
             if (size == 4) {
+                int id = Integer.parseInt(parameters.get(1).trim());
                 String parametersLine = parameters.stream()
-                        .skip(1)
+                        .skip(2)
                         .collect(Collectors.joining(","));
-                userDAO.update(UserMapper.stringToUser(parametersLine));
-                System.out.println("Пользователь обновлен, проверить можно введя команду ALL_USERS");
-            } else {
-                throw new WrongCommandParametersException();
+                Optional<User> user = userService.update(id, parametersLine);
+                response = "Пользователь обновлен: " + user.orElseThrow(WrongCommandParametersException::new);
             }
+            return response;
         }
     },
 
     UPDATE_TASK {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             int size = parameters.size();
+            String response = "";
             if ((size > 4) && (size < 7)) {
+                int id = Integer.parseInt(parameters.get(1).trim());
                 String parametersLine = parameters.stream()
-                        .skip(1)
+                        .skip(2)
                         .collect(Collectors.joining(","));
-                taskDAO.update(TaskMapper.stringToTask(parametersLine));
-                System.out.println("Задача обновлена, проверить можно введя команду ALL_TASKS");
-            } else {
-                throw new WrongCommandParametersException();
+                Optional<Task> task = taskService.update(id, parametersLine);
+                response = "Задача обновлена: " + task.orElseThrow(WrongCommandParametersException::new);
             }
-
+            return response;
         }
     },
 
     DELETE_ALL_USERS {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             if (parameters.size() == 1) {
-                userDAO.deleteAll();
+                userService.deleteAll();
             } else {
                 throw new WrongCommandParametersException();
             }
+            return "Все пользователи удалены";
         }
     },
 
     DELETE_ALL_TASKS {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             if (parameters.size() == 1) {
-                taskDAO.deleteAll();
+                taskService.deleteAll();
             } else {
                 throw new WrongCommandParametersException();
             }
-
+            return "Все задачи удалены";
         }
     },
 
     DELETE_USER {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            String response;
             if (parameters.size() == 2) {
                 int id = Integer.parseInt(parameters.get(1).trim());
-                userDAO.deleteById(id);
+                userService.deleteById(id);
+                response = "Пользователь с id = " + id + " удален";
             } else {
                 throw new WrongCommandParametersException();
             }
+            return response;
         }
     },
 
     DELETE_TASK {
+        String response = "";
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             if (parameters.size() == 2) {
                 int id = Integer.parseInt(parameters.get(1).trim());
-                taskDAO.deleteById(id);
+                taskService.deleteById(id);
+                response = "Задача с id = " + id + " удалена";
             } else {
                 throw new WrongCommandParametersException();
             }
+            return response;
         }
     },
 
     CHANGE_STATUS {
         @Override
-        public void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters) {
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
             int size = parameters.size();
+            String response;
             if (size == 3) {
                 int id = Integer.parseInt(parameters.get(1).trim());
                 String status = parameters.get(2).trim();
-                taskDAO.changeStatus(id, status);
+                taskService.changeStatus(id, status);
+                response = "Статус обновлен";
             } else {
                 throw new WrongCommandParametersException();
             }
+            return response;
+        }
+    },
+    HELP {
+        @Override
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            return Constants.HELP_TEXT;
+        }
+    },
+    EXIT{
+        @Override
+        public String action(UserService userService, TaskService taskService, List<String> parameters) {
+            return Constants.GOODBYE_MESSAGE;
         }
     };
 
-    public abstract void action(UserDAO userDAO, TaskDAO taskDAO, List<String> parameters);
+    public abstract String action(UserService userService, TaskService taskService, List<String> parameters);
 }

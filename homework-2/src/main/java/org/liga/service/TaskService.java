@@ -1,13 +1,14 @@
-package org.liga.dao;
+package org.liga.service;
 
+import org.liga.enums.Status;
 import org.liga.model.Task;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface TaskDAO {
+public interface TaskService {
 
-    List<Task> findAllByStatus(String status);
+    List<Task> findAllByStatus(Status status);
 
     void changeStatus(Integer id, String status);
 
@@ -15,11 +16,12 @@ public interface TaskDAO {
 
     Optional<Task> findById(Integer id);
 
-    Boolean create(String parametersLine);
+    Optional<Task> create(String parametersLine);
 
     void deleteAll();
 
     void deleteById(Integer id);
 
-    void update(Task task);
+    Optional<Task> update(Integer id, String parametersLine);
+
 }

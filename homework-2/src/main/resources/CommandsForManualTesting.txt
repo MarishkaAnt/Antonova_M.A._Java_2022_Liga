@@ -1,38 +1,42 @@
 HELP
 ALL_TASKS
-NEW_TASK, новое задание, создать новое задание, 1, 22.06.2022
+NEW_TASK, Решить задачу, Решить поставленную задачу, 1, 22.06.2022, DONE
+NEW_TASK, Создать задание, Создать новое задание, 1, 22.06.2022, NEW
+NEW_TASK, Выполнить ДЗ, Придумать и написать кучу кода, 2, 23.06.2022
+NEW_TASK, Рефакторинг кода, Отрефакторить код в соответствии с паттернами программирования, 3, 27.06.2022, IN_PROGRESS
 ALL_TASKS
-GET_TASK, 1
-GET_TASK, 5
-CHANGE_STATUS, 1, IN_PROGRESS
-GET_TASK, 1
-UPDATE_TASK, 5, новое задание, создать новое задание, 1, 23.06.2022
+//==============================================
+//создаем юзеров чтобы таски красивее выводились
+NEW_USER, Иван, Иванов
+NEW_USER, Пётр, Петров
+NEW_USER, Николай, Николаев
+//==============================================
 ALL_TASKS
-DELETE_TASK, 5
+ALL_TASKS, NEW
+GET_TASK, 1
+GET_TASK, 3
+CHANGE_STATUS, 3, IN_PROGRESS
+GET_TASK, 3
+UPDATE_TASK, 3, новое задание, создать новое задание, 1, 23.06.2022
+ALL_TASKS
+DELETE_TASK, 3
 ALL_TASKS
 DELETE_ALL_TASKS
 ALL_TASKS
 
-NEW_TASK, Решить задачу, Решить поставленную задачу, 1, 22.06.2022, DONE
-NEW_TASK, Создать задание, Создать новое задание, 1, 22.06.2022, NEW
-NEW_TASK, Выполнить ДЗ, Придумать и написать кучу кода, 2, 23.06.2022, DONE
-NEW_TASK, Рефакторинг кода, Отрефакторить код в соответствии с паттернами программирования, 3, 27.06.2022, IN_PROGRESS
-
-ALL_TASKS, NEW
-
+// пользователей проверять отдельно, либо следить за создающимися id
 ALL_USERS
-NEW_USER, Роман, Романов
-GET_USER, 4
+NEW_USER, Иван, Иванов
+NEW_USER, Пётр, Петров
+NEW_USER, Николай, Николаев
 GET_USER, 1
-UPDATE_USER, 1, Иван, Ивановcкий
+GET_USER, 3
+UPDATE_USER, 3, Иван, Романов
 ALL_USERS
-DELETE_USER, 4
+DELETE_USER, 3
 ALL_USERS
 DELETE_ALL_USERS
 ALL_USERS
 
-NEW_USER, Иван, Иванов
-NEW_USER, Пётр, Петров
-NEW_USER, Николай, Николаев
 
 EXIT
