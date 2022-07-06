@@ -7,7 +7,7 @@ import org.liga.model.Task;
 import org.liga.model.User;
 import org.liga.service.TaskService;
 import org.liga.service.UserService;
-import org.liga.util.Constants;
+import org.liga.util.StringConstants;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -218,13 +218,13 @@ public enum Commands {
     HELP {
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            return Constants.HELP_TEXT;
+            return StringConstants.HELP_TEXT;
         }
     },
     EXIT{
         @Override
         public String action(UserService userService, TaskService taskService, List<String> parameters) {
-            return Constants.GOODBYE_MESSAGE;
+            return StringConstants.GOODBYE_MESSAGE;
         }
     };
 

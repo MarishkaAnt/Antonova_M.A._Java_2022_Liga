@@ -1,6 +1,6 @@
 package org.liga.util;
 
-public class Constants {
+public class StringConstants {
     public static final String GREETINGS = """
             Привет! Это приложение Таск-трекер.
             Работа с приложением осуществляется через ввод параметров запроса.

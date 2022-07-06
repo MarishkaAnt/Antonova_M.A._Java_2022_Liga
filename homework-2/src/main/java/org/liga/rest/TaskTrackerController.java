@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
-import static org.liga.util.Constants.*;
+import static org.liga.util.StringConstants.*;
 
 @RestController
 @RequiredArgsConstructor
