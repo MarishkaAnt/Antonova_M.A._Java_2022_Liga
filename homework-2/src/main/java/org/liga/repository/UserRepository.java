@@ -1,4 +1,4 @@
-package org.liga.dao;
+package org.liga.repository;
 
 import org.liga.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

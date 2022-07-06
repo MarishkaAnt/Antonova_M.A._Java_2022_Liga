@@ -1,4 +1,4 @@
-package org.liga.dao;
+package org.liga.repository;
 
 import org.liga.enums.Status;
 import org.liga.model.Task;
