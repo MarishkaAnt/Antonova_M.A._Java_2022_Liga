@@ -1,11 +1,15 @@
-package org.liga.dao.impl;
+package org.liga.repository;
 
-import org.liga.dao.TaskDAO;
+import lombok.NonNull;
 import org.liga.enums.Status;
 import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.TaskMapper;
 import org.liga.model.Task;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityNotFoundException;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,17 +20,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.*;
+import static org.liga.util.StringConstants.*;
 
-public class CsvTaskDOAImpl implements TaskDAO {
-    private static final String FILE_READING_ERROR = "Извините, что-то не так с файлами для хранения данных";
-    public static final String TASK_NOT_FOUND = "Задачи с таким id не существует";
-    private static final String IMPOSSIBLE_TO_DELETE = "Невозможно удалить задачу из файла: ";
-    private final Path path;
+@Repository
+@Qualifier("CsvTaskRepository")
+public class CsvTaskRepositoryImpl implements TaskRepository {
+
     private List<String> lines = new ArrayList<>();
     private List<Task> tasks = new ArrayList<>();
 
-    public CsvTaskDOAImpl(Path path) {
-        this.path = path;
+    private final String stringPath = "src/test/resources/Tasks.csv";
+    private final Path path = Path.of(stringPath);
+
+    public CsvTaskRepositoryImpl() {
         try {
             initialiseTasks();
         } catch (IOException e) {
@@ -35,37 +41,23 @@ public class CsvTaskDOAImpl implements TaskDAO {
     }
 
     private void initialiseTasks() throws IOException {
-        if (!Files.isReadable(path)) {
-            throw new IOException("Невозможно открыть файл: " + path);
-        }
         lines.addAll(Files.readAllLines(path));
         if (lines.size() > 0) {
             tasks.addAll(lines.stream()
                     .map(TaskMapper::stringToTask)
                     .collect(Collectors.toList()));
-        } else {
-            throw new IOException("В файле нет данных " + path + "\n" +
-                    "Пожалуйста, добавьте минимум одного пользователя");
         }
     }
 
     @Override
-    public Boolean create(String parametersLine) {
-        List<Task> sortedTasks = tasks.stream()
-                .sorted(Comparator.comparing(Task::getId))
-                .collect(Collectors.toList());
-        int nextId = 1;
-        if(tasks.size() > 0) {
-            nextId = (sortedTasks.get(tasks.size() - 1).getId()) + 1;
-        }
-        Task task = TaskMapper.stringToTask(nextId + ", " + parametersLine);
+    public Task save(@NonNull Task task) {
+        int nextId = getNextId();
         if (!validate(task)) {
             System.out.println("Все параметры, кроме статуса, должны быть заполнены");
-            return false;
+            return null;
         }
         if (findById(task.getId()).isPresent()) {
-            update(task);
-            return true;
+            return update(task);
         }
         String line = TaskMapper.taskToString(task);
         lines.add(line);
@@ -73,9 +65,15 @@ public class CsvTaskDOAImpl implements TaskDAO {
         try {
             Files.write(path, List.of(line), CREATE, APPEND);
         } catch (IOException e) {
-            return false;
+            System.out.println("Не удалось записать задачу в файл - " + e);
+            return null;
         }
-        return true;
+        return task;
+    }
+
+    @Override
+    public <S extends Task> Iterable<S> saveAll(Iterable<S> entities) {
+        return null;
     }
 
     @Override
@@ -86,10 +84,13 @@ public class CsvTaskDOAImpl implements TaskDAO {
     }
 
     @Override
-    public List<Task> findAllByStatus(String status) {
-        return tasks.stream()
-                .filter(t -> t.getStatus().toString().equals(status.trim()))
-                .collect(Collectors.toList());
+    public List<Task> findAllById(Iterable<Integer> ids) {
+        List<Task> foundedTasks = new ArrayList<>();
+        ids.forEach(i -> foundedTasks.add(
+                findById(i).orElseThrow(EntityNotFoundException::new)
+                )
+        );
+        return foundedTasks;
     }
 
     @Override
@@ -97,6 +98,23 @@ public class CsvTaskDOAImpl implements TaskDAO {
         return tasks.stream()
                 .filter(t -> t.getId().equals(id))
                 .findAny();
+    }
+
+    @Override
+    public long count() {
+        return findAll().size();
+    }
+
+    @Override
+    public List<Task> findByStatus(Status status) {
+        return tasks.stream()
+                .filter(t -> t.getStatus().equals(status))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsById(Integer id) {
+        return findById(id).isPresent();
     }
 
     @Override
@@ -127,15 +145,29 @@ public class CsvTaskDOAImpl implements TaskDAO {
     }
 
     @Override
-    public void update(Task task) {
-        List<Task> updated = tasks.stream()
+    public void delete(Task task) {
+
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends Integer> integers) {
+
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends Task> entities) {
+
+    }
+
+    public Task update(Task task) {
+        List<Task> updatedTasks = tasks.stream()
                 .map(t -> {
                     if (t.getId().equals(task.getId())) {
                         lines.remove(TaskMapper.taskToString(t));
                         lines.add(TaskMapper.taskToString(task));
                         t.setName(task.getName());
                         t.setDescription(task.getDescription());
-                        t.setUserId(task.getUserId());
+                        t.setUser(task.getUser());
                         t.setDeadline(task.getDeadline());
                         t.setStatus(task.getStatus());
                     }
@@ -143,15 +175,15 @@ public class CsvTaskDOAImpl implements TaskDAO {
                 })
                 .collect(Collectors.toList());
         tasks.clear();
-        tasks.addAll(updated);
+        tasks.addAll(updatedTasks);
         try {
             Files.write(path, lines, TRUNCATE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(IMPOSSIBLE_TO_DELETE + path, e);
         }
+        return task;
     }
 
-    @Override
     public void changeStatus(Integer id, String status) {
         Task founded = findById(id).orElseThrow(WrongCommandParametersException::new);
         founded.setStatus(Status.valueOf(status));
@@ -162,8 +194,20 @@ public class CsvTaskDOAImpl implements TaskDAO {
         return task.getId() != null &&
                 task.getName() != null &&
                 task.getDescription() != null &&
-                task.getUserId() != null &&
+                task.getUser() != null &&
                 task.getDeadline() != null;
+    }
+
+
+    private int getNextId() {
+        List<Task> sortedTasks = tasks.stream()
+                .sorted(Comparator.comparing(Task::getId))
+                .collect(Collectors.toList());
+        int nextId = 1;
+        if(tasks.size() > 0) {
+            nextId = (sortedTasks.get(tasks.size() - 1).getId()) + 1;
+        }
+        return nextId;
     }
 }
 
