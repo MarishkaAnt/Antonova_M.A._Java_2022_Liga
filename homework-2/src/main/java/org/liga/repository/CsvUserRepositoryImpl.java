@@ -1,10 +1,12 @@
-package org.liga.dao.impl;
+package org.liga.repository;
 
-import org.liga.dao.UserDAO;
 import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.UserMapper;
 import org.liga.model.User;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,17 +17,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.*;
+import static org.liga.util.StringConstants.*;
+@Repository
+@Qualifier("CsvUserRepository")
+public class CsvUserRepositoryImpl implements UserRepository {
+    
+    //@Setter
+    //@Value("${csv.user.stringPath}")
+    private final String stringPath = "src/main/resources/Users.csv";
+    private final Path path = Path.of(stringPath);
 
-public class CsvUserDAOImpl implements UserDAO {
-    private static final String FILE_READING_ERROR = "Извините, что-то не так с файлами для хранения данных :";
-    public static final String USER_NOT_FOUND = "Пользователя с таким id не существует";
-    private final Path path;
-    private static final String IMPOSSIBLE_TO_DELETE = "Невозможно удалить пользователя из файла: ";
     private List<String> lines = new ArrayList<>();
     private List<User> users = new ArrayList<>();
 
-    public CsvUserDAOImpl(Path path) {
-        this.path = path;
+    public CsvUserRepositoryImpl(){
         try {
             initialiseUsers();
         } catch (IOException e) {
@@ -34,37 +39,23 @@ public class CsvUserDAOImpl implements UserDAO {
     }
 
     private void initialiseUsers() throws IOException {
-        if (!Files.isReadable(path)) {
-            throw new IOException("Невозможно открыть файл: " + path);
-        }
         lines.addAll(Files.readAllLines(path));
         if (lines.size() > 0) {
             users.addAll(lines.stream()
                     .map(UserMapper::stringToUser)
                     .collect(Collectors.toList()));
-        } else {
-            throw new IOException("В файле нет данных " + path + "\n" +
-                    "Пожалуйста, добавьте минимум одного пользователя");
         }
     }
 
     @Override
-    public Boolean create(String parametersLine) {
-        List<User> sortedUsers = users.stream()
-                .sorted(Comparator.comparing(User::getId))
-                .collect(Collectors.toList());
-        int nextId = 1;
-        if(users.size() > 0) {
-            nextId = (sortedUsers.get(users.size() - 1).getId()) + 1;
-        }
-        User user = UserMapper.stringToUser(nextId + ", " + parametersLine);
+    public User save(User user) {
+        int nextId = getNextId();
         if (!validate(user)) {
             System.out.println("Все параметры должны быть заполнены");
-            return false;
+            return null;
         }
         if (findById(user.getId()).isPresent()) {
-            update(user);
-            return true;
+            return update(user);
         }
         String line = UserMapper.userToString(user);
         lines.add(line);
@@ -72,9 +63,15 @@ public class CsvUserDAOImpl implements UserDAO {
         try {
             Files.write(path, List.of(line), CREATE, APPEND);
         } catch (IOException e) {
-            return false;
+            System.out.println("Не удалось записать задачу в файл - " + e);
+            return null;
         }
-        return true;
+        return user;
+    }
+
+    @Override
+    public <S extends User> Iterable<S> saveAll(Iterable<S> entities) {
+        return null;
     }
 
     @Override
@@ -85,10 +82,29 @@ public class CsvUserDAOImpl implements UserDAO {
     }
 
     @Override
+    public List<User> findAllById(Iterable<Integer> ids) {
+        List<User> foundedUsers = new ArrayList<>();
+        ids.forEach(i -> foundedUsers.add(
+                findById(i).orElseThrow(EntityNotFoundException::new)
+        ));
+        return foundedUsers;
+    }
+
+    @Override
     public Optional<User> findById(Integer id) {
         return users.stream()
                 .filter(u -> u.getId().equals(id))
                 .findAny();
+    }
+
+    @Override
+    public long count() {
+        return findAll().size();
+    }
+
+    @Override
+    public boolean existsById(Integer id) {
+        return findById(id).isPresent();
     }
 
     @Override
@@ -118,7 +134,21 @@ public class CsvUserDAOImpl implements UserDAO {
     }
 
     @Override
-    public void update(User user) {
+    public void delete(User user) {
+
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends Integer> integers) {
+
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends User> entities) {
+
+    }
+
+    public User update(User user) {
         List<User> updated = users.stream()
                 .map(u -> {
                     if (u.getId().equals(user.getId())) {
@@ -137,7 +167,7 @@ public class CsvUserDAOImpl implements UserDAO {
         } catch (IOException e) {
             throw new RuntimeException(IMPOSSIBLE_TO_DELETE + path, e);
         }
-
+        return user;
     }
 
     private Boolean validate(User user) {
@@ -145,5 +175,17 @@ public class CsvUserDAOImpl implements UserDAO {
                 user.getFirstName() != null &&
                 user.getLastName() != null;
     }
+
+    private int getNextId() {
+        List<User> sortedUsers = users.stream()
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toList());
+        int nextId = 1;
+        if(users.size() > 0) {
+            nextId = (sortedUsers.get(users.size() - 1).getId()) + 1;
+        }
+        return nextId;
+    }
+
 }
 
