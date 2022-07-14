@@ -3,9 +3,10 @@ package org.liga.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table//(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,6 +19,9 @@ public class User {
     Integer id;
     String firstName;
     String lastName;
+    @OneToMany
+    //@JoinTable(name = "tasks")
+    Set<Task> tasks;
 
     public String toString() {
         return    this.getId() + ". "
