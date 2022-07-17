@@ -1,19 +1,19 @@
 spring:
   datasource:
-#    url: jdbc:h2:file:./data/sample
-#    username: sa
-#    password:
-#    driverClassName: org.h2.Driver
-    url: jdbc:postgresql://localhost:5432/task_tracker
-    username: postgres
-    password: postgres
-    driverClassName: org.postgresql.Driver
+    url: jdbc:h2:file:./data/sample
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+#    url: jdbc:postgresql://localhost:5432/task_tracker
+#    username: postgres
+#    password: postgres
+#    driverClassName: org.postgresql.Driver
   jpa:
     show-sql: true
-#    hibernate:
-#      ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    #    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
 #  h2:
 #    console:
 #      enabled: true
@@ -25,3 +25,8 @@ spring:
 #    stringpath: "homework-2/src/main/resources/Users.csv"
 #  task:
 #    stringpath: "homework-2/src/main/resources/Tasks.csv"
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
