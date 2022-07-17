@@ -30,13 +30,11 @@ public class Task {
     @NotBlank
     String description;
 
-    @NotNull
     @ManyToOne
     @JoinTable(name = "users")
     User user;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     Status status;
 
     @NotNull
