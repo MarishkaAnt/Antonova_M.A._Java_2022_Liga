@@ -21,7 +21,7 @@ import java.util.Objects;
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
     @NotBlank
@@ -31,7 +31,6 @@ public class Task {
     String description;
 
     @ManyToOne
-    @JoinTable(name = "users")
     User user;
 
     @Enumerated(EnumType.STRING)
@@ -43,11 +42,11 @@ public class Task {
 
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        return this.getUser() + " - "
-                + this.getId() + ". "
+        return this.getId() + ". "
                 + this.getName() + ": "
                 + this.getDescription() + " - ("
-                + this.getStatus() + ") - "
+                + this.getStatus() + ") - userId = "
+                + this.getUser().getId() + ", deadline: "
                 + this.getDeadline().format(formatter);
     }
 
