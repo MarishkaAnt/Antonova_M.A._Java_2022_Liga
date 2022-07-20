@@ -34,4 +34,27 @@ public class UserMapper {
                 + user.getFirstName() + ", "
                 + user.getLastName();
     }
+
+    public static User csvStringToUser(String csvUserParametersLine) {
+        User user;
+        List<String> parameters = Arrays.stream(
+                        csvUserParametersLine.split(",")
+                ).map(String::trim)
+                .toList();
+        if (parameters.size() < 3) {
+            throw new WrongCommandParametersException();
+        }
+        try {
+            user = User.builder()
+                    .id(Integer.parseInt(parameters.get(0)))
+                    .firstName(parameters.get(1))
+                    .lastName(parameters.get(2))
+                    .build();
+        } catch (NumberFormatException e) {
+            throw new WrongCommandParametersException("Неверное количество параметров");
+        }
+
+        return user;
+    }
+
 }
