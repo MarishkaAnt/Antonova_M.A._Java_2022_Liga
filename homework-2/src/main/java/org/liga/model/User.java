@@ -16,7 +16,7 @@ import java.util.Set;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
     @NotBlank
@@ -25,7 +25,7 @@ public class User {
     @NotBlank
     String lastName;
 
-    @OneToMany(mappedBy= "tasks")
+    @OneToMany
     Set<Task> tasks;
 
     public String toString() {
