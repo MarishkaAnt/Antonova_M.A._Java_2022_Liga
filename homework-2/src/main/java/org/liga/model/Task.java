@@ -18,7 +18,7 @@ import java.util.Objects;
 @Builder
 @Getter
 @Setter
-public class Task {
+public class Task extends AbstractEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,7 +13,7 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
-public class User {
+public class User extends AbstractEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
