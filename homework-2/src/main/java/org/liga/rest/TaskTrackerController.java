@@ -15,25 +15,21 @@ import static org.liga.util.StringConstants.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/", produces = "text/plain")
+@RequestMapping(value = "/v1", produces = "text/plain")
 public class TaskTrackerController {
 
     private final CommandHandlerService commandHandlerService;
-    private static String response;
-
-    static {
-        response = GREETINGS + HELP_TEXT;
-    }
 
     @GetMapping("/")
     public ResponseEntity<String> hello() {
+        String response = GREETINGS + HELP_TEXT;
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/cli")
     public ResponseEntity<String> execute(@RequestParam Optional<String> command) {
         String handleCommandResponse = commandHandlerService.handleCommand(command.orElse(""));
-        response = handleCommandResponse + System.lineSeparator() + MESSAGE_AFTER_COMMAND_EXECUTING;
+        String response = handleCommandResponse + System.lineSeparator() + MESSAGE_AFTER_COMMAND_EXECUTING;
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
