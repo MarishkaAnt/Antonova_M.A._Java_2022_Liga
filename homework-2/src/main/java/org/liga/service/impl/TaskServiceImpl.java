@@ -17,10 +17,9 @@ import java.util.Optional;
 @Service
 public class TaskServiceImpl implements TaskService {
 
-    @Qualifier(value = "TaskRepository")
     private final TaskRepository taskRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    public TaskServiceImpl(@Qualifier("TaskRepository") TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
@@ -58,7 +57,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer id) {
+        taskRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         taskRepository.deleteById(id);
     }
 

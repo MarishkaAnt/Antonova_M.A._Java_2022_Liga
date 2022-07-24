@@ -1,11 +1,9 @@
 package org.liga.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.liga.model.Task;
 import org.liga.repository.UserRepository;
-import org.liga.mapper.UserMapper;
 import org.liga.model.User;
 import org.liga.service.UserService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
+    public UserServiceImpl(@Qualifier("UserRepository") UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Optional<User> create(User user) {
