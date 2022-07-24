@@ -16,8 +16,9 @@ dependencies {
     implementation 'org.hibernate.validator:hibernate-validator'
     implementation 'javax.validation:validation-api:2.0.1.Final'
 
+    implementation 'org.flywaydb:flyway-core'
 
-    runtimeOnly 'com.h2database:h2:2.1.214'
+    runtimeOnly 'org.postgresql:postgresql'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor('org.projectlombok:lombok')
 
