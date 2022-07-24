@@ -1,12 +1,16 @@
 package org.liga.repository;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.UserMapper;
 import org.liga.model.User;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityNotFoundException;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,38 +22,34 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.*;
 import static org.liga.util.StringConstants.*;
-@Repository
-@Qualifier("CsvUserRepository")
+@Repository("CsvUserRepository")
+@RequiredArgsConstructor
 public class CsvUserRepositoryImpl implements UserRepository {
-    
-    //@Setter
-    //@Value("${csv.user.stringPath}")
-    private final String stringPath = "src/main/resources/Users.csv";
-    private final Path path = Path.of(stringPath);
 
-    private List<String> lines = new ArrayList<>();
-    private List<User> users = new ArrayList<>();
+    @Value("${csv.user}")
+    private String stringPath;
+    private Path path;
+    @Getter
+    private static List<String> lines = new ArrayList<>();
 
-    public CsvUserRepositoryImpl(){
-        try {
-            initialiseUsers();
-        } catch (IOException e) {
-            System.out.println(FILE_READING_ERROR + e.getMessage());
-        }
-    }
+    @Getter
+    private static List<User> users = new ArrayList<>();
 
-    private void initialiseUsers() throws IOException {
+
+    @PostConstruct
+    public void init() throws IOException {
+        path = Path.of(stringPath);
         lines.addAll(Files.readAllLines(path));
         if (lines.size() > 0) {
             users.addAll(lines.stream()
-                    .map(UserMapper::stringToUser)
-                    .collect(Collectors.toList()));
+                    .map(UserMapper::csvStringToUser).toList());
         }
     }
 
     @Override
-    public User save(User user) {
+    public User save(@NotNull User user) {
         int nextId = getNextId();
+        user.setId(nextId);
         if (!validate(user)) {
             System.out.println("Все параметры должны быть заполнены");
             return null;
@@ -178,8 +178,7 @@ public class CsvUserRepositoryImpl implements UserRepository {
 
     private int getNextId() {
         List<User> sortedUsers = users.stream()
-                .sorted(Comparator.comparing(User::getId))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(User::getId)).toList();
         int nextId = 1;
         if(users.size() > 0) {
             nextId = (sortedUsers.get(users.size() - 1).getId()) + 1;
