@@ -54,6 +54,17 @@ public class TaskMapper {
                 + task.getDeadline().format(formatter) + ", "
                 + task.getStatus();
     }
+    public static String taskToStringWithoutUser(Task task) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        return task.getId() + ", "
+                + task.getName() + ", "
+                + task.getDescription() + ", "
+                + task.getUser().getId() + ", "
+                + task.getDeadline().format(formatter) + ", "
+                + task.getStatus();
+    }
+
 
     public static Task csvStringToTask(String csvTaskParametersLine) {
         Task task;

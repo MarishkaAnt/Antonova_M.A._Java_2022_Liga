@@ -67,14 +67,14 @@ public enum TaskCommands {
             }
             int id = Integer.parseInt(parameters.get(1).trim());
             Task founded = taskService.findById(id).orElseThrow(EntityNotFoundException::new);
-            return "UPDATE_TASK, " + TaskMapper.taskToString(founded);
+            return "UPDATE_TASK, " + TaskMapper.taskToStringWithoutUser(founded);
         }
     },
 
     UPDATE_TASK {
         @Override
         public String action(TaskService taskService, List<String> parameters) {
-            int requiredAmountOfParams = 6;
+            int requiredAmountOfParams = 7;
             int size = parameters.size();
             String response;
             if (size == requiredAmountOfParams) {
