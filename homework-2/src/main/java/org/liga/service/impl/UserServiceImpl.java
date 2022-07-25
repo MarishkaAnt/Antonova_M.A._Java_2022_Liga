@@ -13,6 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static org.liga.validator.IdValidator.*;
+import static org.liga.validator.UserValidator.*;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -24,16 +27,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> create(User user) {
+        validateIfUserNullThrowIAE(user);
+        validateIfAnyFieldOfUserNullThrowIAE(user);
         return Optional.of(userRepository.save(user));
     }
 
     @Override
     public List<User> findAll() {
-        return new ArrayList<>((Collection<? extends User>) userRepository.findAll());
+        return new ArrayList<>((Collection<User>) userRepository.findAll());
     }
 
     @Override
     public Optional<User> findById(Integer id) {
+        validateIfIdNullOrNegativeThrowIAE(id);
         return userRepository.findById(id);
     }
 
@@ -44,12 +50,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Integer id) {
+        validateIfIdNullOrNegativeThrowIAE(id);
         userRepository.deleteById(id);
     }
 
     @Override
     @Transactional
     public Optional<User> update(Integer id, User user) {
+        validateIfUserNullThrowIAE(user);
+        validateIfAnyFieldOfUserNullThrowIAE(user);
+        validateIfIdNullOrNegativeThrowIAE(id);
         userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         user.setId(id);
         return Optional.of(userRepository.save(user));

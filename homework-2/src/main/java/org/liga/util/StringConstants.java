@@ -66,6 +66,10 @@ public class StringConstants {
     public static final String TASK_NOT_FOUND = "Извините, не найдена задача с таким id: ";
     public static final String IMPOSSIBLE_TO_DELETE = "Невозможно удалить задачу из файла: ";
     public static final String USER_NOT_FOUND = "Извините, не найден пользователь с таким id: ";
-
+    public static final String USER_COULD_NOT_BE_NULL = "User couldn't be null";
+    public static final String TASK_COULD_NOT_BE_NULL = "Task couldn't be null";
+    public static final String ID_COULD_NOT_BE_NULL_OR_NEGATIVE = "Id couldn't be null or negative";
+    public static final String FIELDS_COULD_NOT_BE_NULL = "Fields couldn't be null";
+    public static final String UNKNOWN_STATUS = "Unknown status";
 
 }

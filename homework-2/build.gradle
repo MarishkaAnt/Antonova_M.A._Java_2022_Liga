@@ -13,6 +13,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+
 
     runtimeOnly 'com.h2database:h2:2.1.214'
     compileOnly 'org.projectlombok:lombok:1.18.24'
