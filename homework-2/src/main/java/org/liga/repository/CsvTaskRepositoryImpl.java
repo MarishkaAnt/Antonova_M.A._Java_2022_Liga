@@ -198,7 +198,6 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
         return task.getId() != null &&
                 task.getName() != null &&
                 task.getDescription() != null &&
-                task.getUser() != null &&
                 task.getDeadline() != null;
     }
 
