@@ -1,4 +1,4 @@
-package org.liga.utest;
+package org.liga.service.impl;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.liga.model.User;
 import org.liga.repository.UserRepository;
 import org.liga.service.UserService;
-import org.liga.service.impl.UserServiceImpl;
 import org.mockito.Mockito;
 
 import javax.persistence.EntityNotFoundException;
@@ -17,14 +16,10 @@ import static org.assertj.core.api.Assertions.*;
 import static org.liga.util.StringConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.liga.service.impl.StringConstantsForTests.*;
 
 class UserServiceImplTest {
 
-    public static final String CORRECT_NAME = "John";
-    public static final String CORRECT_LAST_NAME = "Douh";
-    public static final int CORRECT_ID = 1;
-    public static final int NEGATIVE_ID = -1;
-    public static final int NOT_EXISTING_ID = 9999;
     private static UserRepository userRepository;
     private static UserService userService;
 
@@ -94,7 +89,7 @@ class UserServiceImplTest {
 
     @Test
     @Tag("update")
-    void update_userNotExist_ThrowException(){
+    void update_userNotExist_ThrowException() {
         //given
         User correctUser = getCorrectUser();
         when(userRepository.findById(NOT_EXISTING_ID))
@@ -126,6 +121,7 @@ class UserServiceImplTest {
         //then
         assertThat(actual).isPresent();
     }
+
     @Test
     @Tag("create")
     void create_nullUser_ThrowException() {
@@ -167,12 +163,12 @@ class UserServiceImplTest {
 
     private User getCorrectUser() {
         return User.builder()
-                .firstName(CORRECT_NAME)
+                .firstName(CORRECT_USER_NAME)
                 .lastName(CORRECT_LAST_NAME)
                 .build();
     }
 
-    private User getIncorrectUser(){
+    private User getIncorrectUser() {
         return User.builder()
                 .firstName(null)
                 .lastName(CORRECT_LAST_NAME)

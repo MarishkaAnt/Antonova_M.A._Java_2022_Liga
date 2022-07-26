@@ -1,4 +1,4 @@
-package org.liga.utest;
+package org.liga.service.impl;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,7 +9,6 @@ import org.liga.model.Task;
 import org.liga.model.User;
 import org.liga.repository.TaskRepository;
 import org.liga.service.TaskService;
-import org.liga.service.impl.TaskServiceImpl;
 import org.mockito.Mockito;
 
 import javax.persistence.EntityNotFoundException;
@@ -21,16 +20,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.liga.util.StringConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.liga.service.impl.StringConstantsForTests.*;
 
 class TaskServiceImplTest {
 
-    public static final String CORRECT_USER_NAME = "John";
-    public static final String CORRECT_LAST_NAME = "Douh";
-    public static final int CORRECT_ID = 1;
-    public static final int NEGATIVE_ID = -1;
-    public static final int NOT_EXISTING_ID = 9999;
-    public static final String CORRECT_TASK_NAME = "correct task name";
-    public static final String CORRECT_TASK_DESCRIPTION = "correct task description";
     private static TaskRepository taskRepository;
     private static TaskService taskService;
 
