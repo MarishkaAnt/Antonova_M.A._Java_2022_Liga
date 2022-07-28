@@ -14,6 +14,8 @@ import javax.persistence.MappedSuperclass;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @MappedSuperclass
 public abstract class Identifiable {
     /** Идентификатор сущностей */

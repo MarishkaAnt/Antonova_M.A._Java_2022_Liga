@@ -81,12 +81,12 @@ public class TaskMapper {
             User user = new User();
             user.setId(userId);
             task = Task.builder()
-                    .id(Integer.parseInt(parameters.get(0)))
                     .name(parameters.get(1))
                     .description(parameters.get(2))
                     .user(user)
                     .deadline(LocalDate.parse(parameters.get(4), formatter))
                     .build();
+            task.setId(Integer.parseInt(parameters.get(0)));
             if (parameters.size() == 6) {
                 task.setStatus(Status.valueOf(parameters.get(5)));
             } else {

@@ -90,7 +90,7 @@ class CommandHandlerServiceTest {
     void handleCommand_NEW_USER_rightResponse() {
         //given
         User correctUser = getCorrectUser();
-        when(userService.create(any())).thenReturn(Optional.ofNullable(correctUser));
+        when(userService.create(any())).thenReturn(Optional.of(correctUser));
         //when
         String response = commandHandlerService.handleCommand(NEW_USER);
         //then
@@ -102,7 +102,7 @@ class CommandHandlerServiceTest {
     void handleCommand_NEW_TASK_rightResponse() {
         //given
         Task correctTask = getCorrectTask();
-        when(taskService.create(any())).thenReturn(Optional.ofNullable(correctTask));
+        when(taskService.create(any())).thenReturn(Optional.of(correctTask));
         //when
         String response = commandHandlerService.handleCommand(NEW_TASK);
         //then
@@ -119,22 +119,24 @@ class CommandHandlerServiceTest {
     }
 
     private User getCorrectUser() {
-        return User.builder()
-                .id(CORRECT_ID)
+        User user = User.builder()
                 .firstName(CORRECT_USER_NAME)
                 .lastName(CORRECT_LAST_NAME)
                 .build();
+        user.setId(CORRECT_ID);
+        return user;
     }
 
     private Task getCorrectTask() {
-        return Task.builder()
-                .id(CORRECT_ID)
+        Task task = Task.builder()
                 .name(CORRECT_TASK_NAME)
                 .description(CORRECT_TASK_DESCRIPTION)
                 .status(Status.NEW)
                 .deadline(CORRECT_TASK_DEADLINE)
                 .user(getCorrectUser())
                 .build();
+        task.setId(CORRECT_ID);
+        return task;
     }
 
 }

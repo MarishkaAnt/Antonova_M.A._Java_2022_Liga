@@ -46,10 +46,10 @@ public class UserMapper {
         }
         try {
             user = User.builder()
-                    .id(Integer.parseInt(parameters.get(0)))
                     .firstName(parameters.get(1))
                     .lastName(parameters.get(2))
                     .build();
+            user.setId(Integer.parseInt(parameters.get(0)));
         } catch (NumberFormatException e) {
             throw new WrongCommandParametersException("Неверное количество параметров");
         }
