@@ -13,10 +13,10 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
-public class User {
+public class User extends AbstractEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
     @NotBlank
@@ -25,7 +25,7 @@ public class User {
     @NotBlank
     String lastName;
 
-    @OneToMany(mappedBy= "tasks")
+    @OneToMany
     Set<Task> tasks;
 
     public String toString() {

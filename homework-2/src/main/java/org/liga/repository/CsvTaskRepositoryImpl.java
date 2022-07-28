@@ -1,13 +1,13 @@
 package org.liga.repository;
 
-import lombok.NonNull;
 import org.liga.enums.Status;
 import org.liga.exception.WrongCommandParametersException;
 import org.liga.mapper.TaskMapper;
 import org.liga.model.Task;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -22,17 +22,18 @@ import java.util.stream.Collectors;
 import static java.nio.file.StandardOpenOption.*;
 import static org.liga.util.StringConstants.*;
 
-@Repository
-@Qualifier("CsvTaskRepository")
+@Repository("CsvTaskRepository")
 public class CsvTaskRepositoryImpl implements TaskRepository {
 
-    private List<String> lines = new ArrayList<>();
-    private List<Task> tasks = new ArrayList<>();
+    private final List<String> lines = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
 
-    private final String stringPath = "src/test/resources/Tasks.csv";
-    private final Path path = Path.of(stringPath);
+    @Value("${csv.task:homework-2/src/main/resources/Tasks.csv}")
+    private String stringPath;
+    private Path path;
 
-    public CsvTaskRepositoryImpl() {
+    @PostConstruct
+    public void init() {
         try {
             initialiseTasks();
         } catch (IOException e) {
@@ -41,17 +42,18 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
     }
 
     private void initialiseTasks() throws IOException {
+        path = Path.of(stringPath);
         lines.addAll(Files.readAllLines(path));
         if (lines.size() > 0) {
             tasks.addAll(lines.stream()
-                    .map(TaskMapper::stringToTask)
-                    .collect(Collectors.toList()));
+                    .map(TaskMapper::csvStringToTask).toList());
         }
     }
 
     @Override
-    public Task save(@NonNull Task task) {
+    public Task save(@NotNull Task task) {
         int nextId = getNextId();
+        task.setId(nextId);
         if (!validate(task)) {
             System.out.println("Все параметры, кроме статуса, должны быть заполнены");
             return null;
@@ -71,6 +73,7 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
         return task;
     }
 
+    //ToDo implement method
     @Override
     public <S extends Task> Iterable<S> saveAll(Iterable<S> entities) {
         return null;
@@ -126,7 +129,6 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
         } catch (IOException e) {
             throw new RuntimeException(IMPOSSIBLE_TO_DELETE + path, e);
         }
-
     }
 
     @Override
@@ -144,16 +146,19 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
         }
     }
 
+    //ToDo implement method
     @Override
     public void delete(Task task) {
 
     }
 
+    //ToDo implement method
     @Override
     public void deleteAllById(Iterable<? extends Integer> integers) {
 
     }
 
+    //ToDo implement method
     @Override
     public void deleteAll(Iterable<? extends Task> entities) {
 
@@ -172,8 +177,7 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
                         t.setStatus(task.getStatus());
                     }
                     return t;
-                })
-                .collect(Collectors.toList());
+                }).toList();
         tasks.clear();
         tasks.addAll(updatedTasks);
         try {
@@ -194,15 +198,12 @@ public class CsvTaskRepositoryImpl implements TaskRepository {
         return task.getId() != null &&
                 task.getName() != null &&
                 task.getDescription() != null &&
-                task.getUser() != null &&
                 task.getDeadline() != null;
     }
 
-
     private int getNextId() {
         List<Task> sortedTasks = tasks.stream()
-                .sorted(Comparator.comparing(Task::getId))
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Task::getId)).toList();
         int nextId = 1;
         if(tasks.size() > 0) {
             nextId = (sortedTasks.get(tasks.size() - 1).getId()) + 1;
