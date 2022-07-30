@@ -1,6 +1,8 @@
 package org.liga.model;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.liga.enums.Status;
 
 import javax.persistence.*;
@@ -11,6 +13,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+/**
+ * Класс описывающий сущность - Задача
+ */
+
 @Entity
 @Table(name = "tasks")
 @NoArgsConstructor
@@ -18,27 +24,28 @@ import java.util.Objects;
 @Builder
 @Getter
 @Setter
-public class Task extends AbstractEntity{
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+public class Task extends Identifiable {
 
     @NotBlank
-    String name;
+    private String name;
 
     @NotBlank
-    String description;
+    private String description;
 
-    @ManyToOne
-    User user;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Fetch(FetchMode.JOIN)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     @Enumerated(EnumType.STRING)
-    Status status;
+    private Status status;
 
     @NotNull
     @FutureOrPresent
-    LocalDate deadline;
+    private LocalDate deadline;
 
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");

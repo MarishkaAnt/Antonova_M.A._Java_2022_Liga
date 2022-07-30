@@ -3,8 +3,13 @@ package org.liga.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
+
+/**
+ * Класс описывающий сущность - Пользователь
+ */
 
 @Entity
 @Table(name = "users")
@@ -13,23 +18,28 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
-public class User extends AbstractEntity{
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+public class User extends Identifiable {
 
     @NotBlank
-    String firstName;
+    private String firstName;
 
     @NotBlank
-    String lastName;
+    private String lastName;
 
-    @OneToMany
-    Set<Task> tasks;
+    @OneToMany(mappedBy = "user")
+    private Set<Task> tasks;
+
+    @Email
+    private String email;
+
+    @NotBlank
+    private String password;
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Project> projects;
 
     public String toString() {
-        return    this.getId() + ". "
+        return this.getId() + ". "
                 + this.getFirstName() + " "
                 + this.getLastName();
     }

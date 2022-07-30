@@ -1,6 +1,6 @@
 package org.liga.service;
 
-import org.liga.model.AbstractEntity;
+import org.liga.model.Identifiable;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Validated
-public interface AbstractService<T extends AbstractEntity, ID> {
+public interface AbstractService<T extends Identifiable, ID> {
 
     List<T> findAll();
 
